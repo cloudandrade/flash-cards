@@ -161,7 +161,7 @@ export default function DeckView({ cards, onEdit }: DeckViewProps) {
               <p className="text-[11px] font-semibold text-indigo-600 uppercase tracking-widest mb-3">
                 Resposta
               </p>
-              <div className="flex-1 flex items-center justify-center overflow-auto">
+              <div className="flex-1 overflow-y-auto overscroll-contain min-h-0 py-1">
                 <p className="text-lg text-slate-700 text-center leading-relaxed whitespace-pre-wrap">
                   {current.answer}
                 </p>
