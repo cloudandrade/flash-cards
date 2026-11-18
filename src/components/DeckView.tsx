@@ -6,6 +6,8 @@ import { arrangeByIds, DeckOrder, shuffleIds } from "@/lib/deckOrder";
 
 interface DeckViewProps {
   cards: FlashCard[];
+  deckOrder: DeckOrder;
+  onDeckOrderChange: (order: DeckOrder) => void;
   onEdit: (card: FlashCard) => void;
 }
 
@@ -28,12 +30,11 @@ const DECK_ORDER_OPTIONS: { order: DeckOrder; label: string; iconPath: string }[
   },
 ];
 
-export default function DeckView({ cards, onEdit }: DeckViewProps) {
+export default function DeckView({ cards, deckOrder, onDeckOrderChange, onEdit }: DeckViewProps) {
   const [index, setIndex]     = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [deckOrder, setDeckOrder] = useState<DeckOrder>("sequential");
-  const [shuffledIds, setShuffledIds] = useState<string[]>([]);
+  const [shuffledIds, setShuffledIds] = useState(() => shuffleIds(cards.map((card) => card.id)));
 
   const deck = useMemo(
     () => (deckOrder === "shuffled" ? arrangeByIds(cards, shuffledIds) : cards),
@@ -63,7 +64,7 @@ export default function DeckView({ cards, onEdit }: DeckViewProps) {
 
   function restartWith(order: DeckOrder) {
     if (order === "shuffled") setShuffledIds(shuffleIds(cards.map((card) => card.id)));
-    setDeckOrder(order);
+    onDeckOrderChange(order);
     setIndex(0);
     setFlipped(false);
     setLeaving(false);

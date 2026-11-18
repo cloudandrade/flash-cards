@@ -8,12 +8,14 @@ import CardForm from "@/components/CardForm";
 import Alert from "@/components/Alert";
 import DeckView from "@/components/DeckView";
 import UserMenu from "@/components/UserMenu";
+import { DeckOrder } from "@/lib/deckOrder";
 
 type ViewMode = "grid" | "deck";
 
 export default function Home() {
   const { cards, isLoaded, addCard, updateCard, deleteCard, deleteAll } = useFlashCards();
   const [viewMode, setViewMode]         = useState<ViewMode>("grid");
+  const [deckOrder, setDeckOrder]       = useState<DeckOrder>("sequential");
   const [formOpen, setFormOpen]         = useState(false);
   const [editingCard, setEditingCard]   = useState<FlashCardType | null>(null);
   const [search, setSearch]             = useState("");
@@ -184,7 +186,7 @@ export default function Home() {
 
         {/* ── Modo Baralho ── */}
         {viewMode === "deck" && (
-          <DeckView cards={filtered} onEdit={handleEdit} />
+          <DeckView cards={filtered} deckOrder={deckOrder} onDeckOrderChange={setDeckOrder} onEdit={handleEdit} />
         )}
 
         {/* ── Modo Grade ── */}
