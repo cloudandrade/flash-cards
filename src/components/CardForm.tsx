@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FlashCard } from "@/types/flashcard";
 
 interface CardFormProps {
@@ -13,12 +13,6 @@ export default function CardForm({ card, onSave, onCancel }: CardFormProps) {
   const [question, setQuestion] = useState(card?.question ?? "");
   const [answer, setAnswer] = useState(card?.answer ?? "");
   const [category, setCategory] = useState(card?.category ?? "");
-
-  useEffect(() => {
-    setQuestion(card?.question ?? "");
-    setAnswer(card?.answer ?? "");
-    setCategory(card?.category ?? "");
-  }, [card]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

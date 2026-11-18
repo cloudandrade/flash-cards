@@ -193,7 +193,7 @@ export default function Home() {
             {/* Formulário inline */}
             {formOpen && (
               <div className="mb-5">
-                <CardForm card={editingCard} onSave={handleSave} onCancel={handleCancel} />
+                <CardForm key={editingCard?.id ?? "new-card"} card={editingCard} onSave={handleSave} onCancel={handleCancel} />
               </div>
             )}
 

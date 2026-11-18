@@ -1,63 +1,37 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { FlashCard } from "@/types/flashcard";
-import { loadCards, saveCards, generateId } from "@/lib/storage";
+import { generateId } from "@/lib/storage";
+import { getCardsSnapshot, getServerCardsSnapshot, subscribeToCards, updateCards } from "@/lib/cardStore";
+
+const NO_CARDS: FlashCard[] = [];
 
 export function useFlashCards() {
-  const [cards, setCards] = useState<FlashCard[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const snapshot = useSyncExternalStore(subscribeToCards, getCardsSnapshot, getServerCardsSnapshot);
+  const cards = snapshot ?? NO_CARDS;
+  const isLoaded = snapshot !== null;
 
-  useEffect(() => {
-    setCards(loadCards());
-    setIsLoaded(true);
+  const addCard = useCallback((question: string, answer: string, category?: string) => {
+    const now = Date.now();
+    const newCard: FlashCard = { id: generateId(), question, answer, category, createdAt: now, updatedAt: now };
+    updateCards((current) => [...current, newCard]);
   }, []);
 
-  const addCard = useCallback(
-    (question: string, answer: string, category?: string) => {
-      const newCard: FlashCard = {
-        id: generateId(),
-        question,
-        answer,
-        category,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      setCards((prev) => {
-        const updated = [...prev, newCard];
-        saveCards(updated);
-        return updated;
-      });
-    },
-    []
-  );
-
-  const updateCard = useCallback(
-    (id: string, question: string, answer: string, category?: string) => {
-      setCards((prev) => {
-        const updated = prev.map((c) =>
-          c.id === id
-            ? { ...c, question, answer, category, updatedAt: Date.now() }
-            : c
-        );
-        saveCards(updated);
-        return updated;
-      });
-    },
-    []
-  );
+  const updateCard = useCallback((id: string, question: string, answer: string, category?: string) => {
+    updateCards((current) =>
+      current.map((card) =>
+        card.id === id ? { ...card, question, answer, category, updatedAt: Date.now() } : card
+      )
+    );
+  }, []);
 
   const deleteCard = useCallback((id: string) => {
-    setCards((prev) => {
-      const updated = prev.filter((c) => c.id !== id);
-      saveCards(updated);
-      return updated;
-    });
+    updateCards((current) => current.filter((card) => card.id !== id));
   }, []);
 
   const deleteAll = useCallback(() => {
-    setCards([]);
-    saveCards([]);
+    updateCards(() => []);
   }, []);
 
   return { cards, isLoaded, addCard, updateCard, deleteCard, deleteAll };

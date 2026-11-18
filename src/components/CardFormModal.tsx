@@ -12,9 +12,9 @@ interface CardFormModalProps {
 export default function CardFormModal({ card, onSave, onClose }: CardFormModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const isUnmountingRef = useRef(false);
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [category, setCategory] = useState("");
+  const [question, setQuestion] = useState(card?.question ?? "");
+  const [answer, setAnswer] = useState(card?.answer ?? "");
+  const [category, setCategory] = useState(card?.category ?? "");
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -26,18 +26,6 @@ export default function CardFormModal({ card, onSave, onClose }: CardFormModalPr
       if (dialog.open) dialog.close();
     };
   }, []);
-
-  useEffect(() => {
-    if (card) {
-      setQuestion(card.question);
-      setAnswer(card.answer);
-      setCategory(card.category ?? "");
-    } else {
-      setQuestion("");
-      setAnswer("");
-      setCategory("");
-    }
-  }, [card]);
 
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent<HTMLDialogElement>) => {
