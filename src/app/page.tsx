@@ -7,6 +7,7 @@ import FlashCard from "@/components/FlashCard";
 import CardForm from "@/components/CardForm";
 import Alert from "@/components/Alert";
 import DeckView from "@/components/DeckView";
+import UserMenu from "@/components/UserMenu";
 
 type ViewMode = "grid" | "deck";
 
@@ -172,6 +173,8 @@ export default function Home() {
                 <span>Novo card</span>
               </button>
             )}
+
+            <UserMenu />
           </div>
         </div>
       </header>
