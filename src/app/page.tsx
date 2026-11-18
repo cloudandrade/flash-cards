@@ -167,12 +167,13 @@ export default function Home() {
             {viewMode === "grid" && (
               <button
                 onClick={handleNewCard}
+                title="Novo card"
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors shadow shadow-indigo-200"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                <span>Novo card</span>
+                <span className="hidden sm:inline">Novo card</span>
               </button>
             )}
 
