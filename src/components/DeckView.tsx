@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FlashCard } from "@/types/flashcard";
+import { arrangeByIds, DeckOrder, shuffleIds } from "@/lib/deckOrder";
 
 interface DeckViewProps {
   cards: FlashCard[];
@@ -14,15 +15,35 @@ const PEEK_OFFSETS = [
   { y: 30, rot: 1.5, bg: "bg-slate-100  border-slate-200"  },
 ];
 
+const DECK_ORDER_OPTIONS: { order: DeckOrder; label: string; iconPath: string }[] = [
+  {
+    order: "sequential",
+    label: "Em ordem",
+    iconPath: "M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0l-3.75-3.75M17.25 21L21 17.25",
+  },
+  {
+    order: "shuffled",
+    label: "Aleatório",
+    iconPath: "M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5",
+  },
+];
+
 export default function DeckView({ cards, onEdit }: DeckViewProps) {
   const [index, setIndex]     = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [deckOrder, setDeckOrder] = useState<DeckOrder>("sequential");
+  const [shuffledIds, setShuffledIds] = useState<string[]>([]);
 
-  const total   = cards.length;
+  const deck = useMemo(
+    () => (deckOrder === "shuffled" ? arrangeByIds(cards, shuffledIds) : cards),
+    [cards, deckOrder, shuffledIds]
+  );
+
+  const total   = deck.length;
   const isDone  = index >= total;
-  const current = cards[index];
-  const peek    = cards.slice(index + 1, index + 4);
+  const current = deck[index];
+  const peek    = deck.slice(index + 1, index + 4);
   const progress = total ? Math.round((index / total) * 100) : 0;
 
   function handleFlip() {
@@ -40,10 +61,16 @@ export default function DeckView({ cards, onEdit }: DeckViewProps) {
     }, 380);
   }
 
-  function handleRestart() {
+  function restartWith(order: DeckOrder) {
+    if (order === "shuffled") setShuffledIds(shuffleIds(cards.map((card) => card.id)));
+    setDeckOrder(order);
     setIndex(0);
     setFlipped(false);
     setLeaving(false);
+  }
+
+  function handleRestart() {
+    restartWith(deckOrder);
   }
 
   /* ── Empty state ─────────────────────────────────── */
@@ -84,6 +111,31 @@ export default function DeckView({ cards, onEdit }: DeckViewProps) {
   /* ── Main deck ───────────────────────────────────── */
   return (
     <div className="flex flex-col items-center gap-8 py-8 select-none">
+
+      <div role="radiogroup" aria-label="Ordem dos cards" className="flex items-center bg-slate-100 rounded-lg p-0.5 gap-0.5">
+        {DECK_ORDER_OPTIONS.map((option) => {
+          const isSelected = deckOrder === option.order;
+          return (
+            <button
+              key={option.order}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              title={option.label}
+              disabled={leaving || isSelected}
+              onClick={() => restartWith(option.order)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                isSelected ? "bg-white shadow-sm text-indigo-600" : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d={option.iconPath} />
+              </svg>
+              <span>{option.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Progress */}
       <div className="w-full max-w-sm px-1">
